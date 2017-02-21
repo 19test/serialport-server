@@ -93,6 +93,15 @@ module SerialportServer
               @serialport.puts mes.strip
             end
 
+						# When a binary message is received, write one byte at a time to the serial port.
+						ws.onbinary do |mes|
+							m = mes.unpack('C*')
+
+							puts "* websocket client (BINARY) <#{sid}> : #{mes}"
+							puts "* websocket client (BINARY) <#{sid}> : #{m.join(',')}"
+							m.map{|x| @serialport.putc(x) }
+						end
+
             ws.onclose do
               @channel.unsubscribe sid
               puts "* websocket client <#{sid}> closed"
